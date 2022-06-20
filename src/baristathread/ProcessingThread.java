@@ -53,6 +53,9 @@ public class ProcessingThread implements Runnable{
     private void doPeriodicWork() throws IOException {
 
         List<OrderProcessing> orders = getOrderInService();
+        if(orders.size()==0){
+            System.out.println("no connection to barista micro-service");
+        }
         for (OrderProcessing orderProcessing : orders) {
             States current=orderProcessing.getStatus();
 
@@ -98,18 +101,23 @@ public class ProcessingThread implements Runnable{
 
     
 
-    public List<OrderProcessing> getOrderInService() {
-
+    public List<OrderProcessing> getOrderInService() throws IOException{
         HttpHeaders headers = new HttpHeaders();
         headers.setAccept(Arrays.asList(MediaType.APPLICATION_JSON));
         HttpEntity< String> entity = new HttpEntity< String>("parameters", headers);
         RestTemplate restTemplate = new RestTemplate();
-
-        ResponseEntity< String> result = restTemplate.exchange(PROCESSING_ORDERS, HttpMethod.GET, entity,
+        ResponseEntity< String> result;
+        try{
+                result = restTemplate.exchange(PROCESSING_ORDERS, HttpMethod.GET, entity,
                 String.class);
+        }
+        catch(Exception ex){
+            return new ArrayList<>();
+        }
+   
         System.out.println(result.getBody());
-
         return new Gson().fromJson(result.getBody(), new TypeToken<ArrayList<OrderProcessing>>() {
         }.getType());
+       
     }
 }
