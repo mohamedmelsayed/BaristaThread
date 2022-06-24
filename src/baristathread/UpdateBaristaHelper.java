@@ -43,4 +43,20 @@ public UpdateBaristaHelper(){
     }
         System.err.println(connection.getResponseCode());
     }
+    
+     public void updateOrdering(OrderRequest body,String url2) throws MalformedURLException, IOException   {
+                Random random = new Random();
+
+ URL url = new URL(url2);
+        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+        connection.setRequestMethod("PUT");
+        connection.setDoOutput(true);
+        connection.setRequestProperty("Content-Type", "application/json");
+        connection.setRequestProperty("Accept", "application/json");
+    try (OutputStreamWriter osw = new OutputStreamWriter(connection.getOutputStream())) {
+        osw.write(String.format(new Gson().toJson(body), random.nextInt(30), random.nextInt(20)));
+        osw.flush();
+    }
+        System.err.println(connection.getResponseCode());
+    }
 }
